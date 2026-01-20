@@ -15,6 +15,7 @@ export default function LoginPage({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">("idle")
 
   const handleTestLogin = async () => {
     setIsLoading(true)
@@ -42,6 +43,26 @@ export default function LoginPage({ onLogin }: { onLogin: () => void }) {
         onLogin()
       }, 1500)
     }
+  }
+
+  const handleCopyCredentials = async () => {
+    const credentials = "Email: admin@mineradorasul.com\nSenha: demo123"
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(credentials)
+      setCopyStatus("success")
+      return
+    }
+
+    const textArea = document.createElement("textarea")
+    textArea.value = credentials
+    textArea.style.position = "fixed"
+    textArea.style.left = "-9999px"
+    document.body.appendChild(textArea)
+    textArea.focus()
+    textArea.select()
+    const copied = document.execCommand("copy")
+    document.body.removeChild(textArea)
+    setCopyStatus(copied ? "success" : "error")
   }
 
   return (
@@ -77,7 +98,7 @@ export default function LoginPage({ onLogin }: { onLogin: () => void }) {
             <div className="flex items-center space-x-4 p-4 bg-white/50 rounded-lg backdrop-blur-sm">
               <Users className="h-8 w-8 text-emerald-600" />
               <div>
-                <h3 className="font-semibolt text-gray-900">Suporte Especializado</h3>
+                <h3 className="font-semibold text-gray-900">Suporte Especializado</h3>
                 <p className="text-gray-600">Equipe técnica dedicada ao seu sucesso</p>
               </div>
             </div>
@@ -106,6 +127,23 @@ export default function LoginPage({ onLogin }: { onLogin: () => void }) {
                     <strong>Senha:</strong> demo123
                   </p>
                   <p className="text-emerald-600 mt-2">Use essas credenciais para testar o sistema</p>
+                </div>
+                <div className="mt-3 flex items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyCredentials}
+                    className="border-emerald-300 text-emerald-700 hover:bg-emerald-100"
+                  >
+                    Copiar credenciais
+                  </Button>
+                  {copyStatus === "success" && (
+                    <span className="text-xs text-emerald-700">Copiado!</span>
+                  )}
+                  {copyStatus === "error" && (
+                    <span className="text-xs text-red-600">Não foi possível copiar.</span>
+                  )}
                 </div>
               </div>
             </CardHeader>

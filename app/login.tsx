@@ -15,6 +15,7 @@ export default function LoginPage({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">("idle")
   const { theme, toggleTheme } = useTheme()
 
   const handleTestLogin = async () => {
@@ -40,6 +41,26 @@ export default function LoginPage({ onLogin }: { onLogin: () => void }) {
         onLogin()
       }, 1500)
     }
+  }
+
+  const handleCopyCredentials = async () => {
+    const credentials = "Email: admin@mineradorasul.com\nSenha: demo123"
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(credentials)
+      setCopyStatus("success")
+      return
+    }
+
+    const textArea = document.createElement("textarea")
+    textArea.value = credentials
+    textArea.style.position = "fixed"
+    textArea.style.left = "-9999px"
+    document.body.appendChild(textArea)
+    textArea.focus()
+    textArea.select()
+    const copied = document.execCommand("copy")
+    document.body.removeChild(textArea)
+    setCopyStatus(copied ? "success" : "error")
   }
 
   return (
@@ -122,6 +143,23 @@ export default function LoginPage({ onLogin }: { onLogin: () => void }) {
                   <p className="text-emerald-600 dark:text-emerald-400 mt-2">
                     Use essas credenciais para testar o sistema
                   </p>
+                </div>
+                <div className="mt-3 flex items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyCredentials}
+                    className="border-emerald-300 dark:border-emerald-600 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
+                  >
+                    Copiar credenciais
+                  </Button>
+                  {copyStatus === "success" && (
+                    <span className="text-xs text-emerald-700 dark:text-emerald-300">Copiado!</span>
+                  )}
+                  {copyStatus === "error" && (
+                    <span className="text-xs text-red-600 dark:text-red-400">Não foi possível copiar.</span>
+                  )}
                 </div>
               </div>
             </CardHeader>

@@ -30,7 +30,7 @@ export async function GET() {
 
     return NextResponse.json({ latestData, alerts });
   } catch (error) {
-    console.error("Erro na API /api/latest:", error);
+    console.error("Erro na API /api/data/latest:", error);
     return NextResponse.json({ error: 'Erro interno do servidor ao buscar o último dado.' }, { status: 500 });
   }
 }

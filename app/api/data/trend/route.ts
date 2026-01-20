@@ -13,14 +13,14 @@ export async function GET() {
       WHERE dia >= CURDATE() - INTERVAL 1 DAY AND dia < CURDATE()
     `;
     const yesterdayData: any = await query({ query: yesterdayAvgQuery });
-    const yesterdayAverage = yesterdayData[0]?.average_value;
+    const yesterdayAverage = Number(yesterdayData[0]?.average_value);
 
     // Query para buscar o valor mais recente
     const latestValueQuery = "SELECT value FROM `poluicao` ORDER BY `id` DESC LIMIT 1";
     const latestData: any = await query({ query: latestValueQuery });
     const latestValue = parseFloat(latestData[0]?.value);
 
-    if (yesterdayAverage === null || isNaN(latestValue)) {
+    if (!Number.isFinite(yesterdayAverage) || yesterdayAverage === 0 || isNaN(latestValue)) {
       // Se não houver dados de ontem ou o dado atual for inválido
       return NextResponse.json({ percentageChange: 0, trend: 'stable' });
     }
